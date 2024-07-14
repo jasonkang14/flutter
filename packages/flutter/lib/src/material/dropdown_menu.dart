@@ -172,6 +172,7 @@ class DropdownMenu<T> extends StatefulWidget {
     this.expandedInsets,
     this.filterCallback,
     this.searchCallback,
+    this.alignmentOffset = Offset.zero,
     required this.dropdownMenuEntries,
     this.inputFormatters,
   }) : assert(filterCallback == null || enableFilter);
@@ -472,6 +473,12 @@ class DropdownMenu<T> extends StatefulWidget {
   ///    and notifies its listeners on [TextEditingValue] changes.
   final List<TextInputFormatter>? inputFormatters;
 
+  /// The offset to adjust the alignment of the menu.
+  ///
+  /// This property is used to add spacing between the [MenuAnchor] and the [DropdownMenuEntry]s.
+  /// The default value is [Offset.zero], which means no additional spacing.
+  final Offset alignmentOffset;
+
   @override
   State<DropdownMenu<T>> createState() => _DropdownMenuState<T>();
 }
@@ -740,14 +747,14 @@ class _DropdownMenuState<T> extends State<DropdownMenu<T>> {
 
     if (_enableFilter) {
       filteredEntries = widget.filterCallback?.call(filteredEntries, _localTextEditingController!.text)
-        ?? filter(widget.dropdownMenuEntries, _localTextEditingController!);
+        ?? filter(widget.dropdownMenuEntries, _localTextEditingController);
     }
 
     if (widget.enableSearch) {
       if (widget.searchCallback != null) {
         currentHighlight = widget.searchCallback!.call(filteredEntries, _localTextEditingController!.text);
       } else {
-        currentHighlight = search(filteredEntries, _localTextEditingController!);
+        currentHighlight = search(filteredEntries, _localTextEditingController);
       }
       if (currentHighlight != null) {
         scrollToHighlight();
@@ -781,6 +788,7 @@ class _DropdownMenuState<T> extends State<DropdownMenu<T>> {
 
     Widget menuAnchor = MenuAnchor(
       style: effectiveMenuStyle,
+      alignmentOffset: widget.alignmentOffset,
       controller: _controller,
       menuChildren: menu,
       crossAxisUnconstrained: false,
